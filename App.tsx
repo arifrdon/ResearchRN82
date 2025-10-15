@@ -28,7 +28,6 @@ function AppContent() {
 
   return (
     <View style={styles.container}>
-      <Text>unch</Text>
       <NewAppScreen
         templateFileName="App.tsx"
         safeAreaInsets={safeAreaInsets}
