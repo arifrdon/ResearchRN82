@@ -3,13 +3,17 @@ import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput
 import { ContainerStyles } from '../../assets'
 
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Clipboard from '@react-native-clipboard/clipboard';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { useNetInfo } from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format, addDays } from 'date-fns';
 import { debounce } from "lodash";
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import { hierarchy, tree } from 'd3-hierarchy';
+import axios from 'axios';
 
-import Clipboard from '@react-native-clipboard/clipboard';
 
 
 const AppPackageContent = () => {
@@ -19,9 +23,19 @@ const AppPackageContent = () => {
     const [storedValue, setStoredValue] = useState(null);
     const [text, setText] = useState('');
     const [resultDebounce, setResultDebounce] = useState('');
+    const [dataAxios, setDataAxios] = useState(null);
     const netInfo = useNetInfo();
     const today = new Date();
     const nextWeek = addDays(today, 7);
+    const myPropTypes = {
+        name: PropTypes.string,
+        age: PropTypes.number,
+        // ... define your prop validations
+    };
+    const props = {
+        name: 'hello', // is valid
+        age: 'world', // not valid
+    };
 
 
     // Handlers
@@ -73,6 +87,42 @@ const AppPackageContent = () => {
         setResultDebounce(text)
     }
 
+    const checkPropTypes = () => {
+        PropTypes.checkPropTypes(myPropTypes, props, 'prop', 'MyComponent');
+    }
+
+    const checkD3Hierarchy = () => {
+        // Example data
+        const data = {
+            name: 'Root',
+            children: [
+                { name: 'Child A', children: [{ name: 'Grandchild A1' }, { name: 'Grandchild A2' }] },
+                { name: 'Child B' },
+            ],
+        };
+
+        // Convert to a D3 hierarchy
+        const root = hierarchy(data);
+
+        // Create a tree layout with a fixed size (x/y positions)
+        const layout = tree().size([400, 200]);
+        const treeData = layout(root);
+
+        console.log('Hierarchy nodes:', treeData.descendants());
+        console.log('Hierarchy links:', treeData.links());
+    }
+
+    const checkAxiosGet = () => {
+        axios
+            .get('https://jsonplaceholder.typicode.com/todos/1')
+            .then(response => {
+                console.log('Axios GET response:', response.data);
+                setDataAxios(response.data);
+            })
+            .catch(error => {
+                console.error('Axios error:', error);
+            });
+    }
 
     // Listeners
 
@@ -85,10 +135,28 @@ const AppPackageContent = () => {
             <ScrollView>
 
                 <View style={styles.columnDiv}>
-
+                    <Text style={styles.textPackageName}>axios</Text>
+                    <Button title={'GET Request Axios'} onPress={checkAxiosGet} />
+                    <Text>Axios Result: {JSON.stringify(dataAxios, null, 2)}</Text>
                 </View>
-                
+
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>d3-hierarchy</Text>
+                    <Button title={'Check console.log d3-hierarchy'} onPress={checkD3Hierarchy} />
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>prop-types</Text>
+                    <Button title={'Check Failed Prop Types'} onPress={checkPropTypes} />
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>moment</Text>
+                    <Text>Moment now: {moment(new Date()).format("YYYY-MM-DD")}</Text>
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>lodash</Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={setText}
@@ -100,10 +168,12 @@ const AppPackageContent = () => {
                 </View>
 
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>date-fns</Text>
                     <Text>{format(nextWeek, 'yyyy-MM-dd')}</Text>
                 </View>
 
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-async-storage/async-storage</Text>
                     <View>
                         <Button title="Save Data" onPress={saveData} />
                     </View>
@@ -119,6 +189,7 @@ const AppPackageContent = () => {
                 </View>
 
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-community/netinfo</Text>
                     <Text>NetInfo Package Status</Text>
                     <Text>
                         <Text>Is Connected:</Text> {netInfo.isConnected ? '✅ YES' : '❌ NO'}
@@ -137,6 +208,7 @@ const AppPackageContent = () => {
                 </View>
 
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-masked-view/masked-view</Text>
                     <MaskedView
                         style={{ flex: 1, flexDirection: 'row', height: 100 }}
                         maskElement={
@@ -170,9 +242,11 @@ const AppPackageContent = () => {
                 </View>
 
                 <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-clipboard/clipboard</Text>
                     <Button
                         title="Click here to copy to Clipboard"
                         onPress={copyToClipboard}
+
                     />
                     <Button
                         title="View copied text"
@@ -197,6 +271,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
     },
+    textPackageName: {
+        fontWeight:'bold', marginBottom: 6, textAlign:'center'
+    }
 })
 
 export default AppPackageContent
