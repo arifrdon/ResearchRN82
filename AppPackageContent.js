@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput } from 'react-native'
 
 
@@ -14,6 +14,8 @@ import PropTypes from 'prop-types';
 import { hierarchy, tree } from 'd3-hierarchy';
 import axios from 'axios';
 import Lottie from 'lottie-react-native';
+import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
@@ -28,6 +30,7 @@ const AppPackageContent = () => {
     const [resultDebounce, setResultDebounce] = useState('');
     const [dataAxios, setDataAxios] = useState(null);
     const netInfo = useNetInfo();
+    const bsRef = useRef<BottomSheet>(null);
     const today = new Date();
     const nextWeek = addDays(today, 7);
     const myPropTypes = {
@@ -42,6 +45,9 @@ const AppPackageContent = () => {
 
 
     // Handlers
+
+    const handlerCloseBottomSheet = () => bsRef.current?.close();
+
     const copyToClipboard = () => {
         Clipboard.setString('hello world');
     };
@@ -127,15 +133,39 @@ const AppPackageContent = () => {
             });
     }
 
+    const handlerOpenBs = (index) => () => {
+        bsRef.current?.snapToIndex(0);
+    }
+
     // Listeners
 
     // Effects
 
     // Renders
 
+    const renderBackdropFilter = (props) => (
+        <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+            onPress={() => {
+                bsRef.current?.close();
+            }}
+        />
+    );
+
     return (
         <SafeAreaView style={{ flex: 1, paddingHorizontal: 12 }}>
             <ScrollView>
+
+                {/* <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@gorhom/bottom-sheet</Text>
+                    <Button title={'open bottomsheet'} onPress={handlerOpenBs} />
+                </View> */}
+
+                <View style={styles.columnDiv}>
+                    
+                </View>
 
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>lottie-react-native</Text>
@@ -152,6 +182,7 @@ const AppPackageContent = () => {
                     <Button title={'GET Request Axios'} onPress={checkAxiosGet} />
                     <Text>Axios Result: {JSON.stringify(dataAxios, null, 2)}</Text>
                 </View>
+
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>axios</Text>
                     <Button title={'GET Request Axios'} onPress={checkAxiosGet} />
@@ -275,6 +306,16 @@ const AppPackageContent = () => {
                 </View>
 
             </ScrollView>
+            {/* <GestureHandlerRootView> //note: currently failed at 17-oct-2025
+                <BottomSheet
+                    ref={bsRef}
+                    snapPoints={[200]}
+                    backdropComponent={renderBackdropFilter}>
+                    <BottomSheetView>
+                        <Text>haloo</Text>
+                    </BottomSheetView>
+                </BottomSheet>
+            </GestureHandlerRootView> */}
         </SafeAreaView>
     )
 }
