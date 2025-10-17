@@ -1,0 +1,1 @@
+export const LOTTIE_TYPING_INDICATOR = require('./typing-indicator.json');
