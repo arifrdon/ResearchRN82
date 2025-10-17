@@ -11,6 +11,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@bugsnag/react-native": "^8.7.0",
+    "@bugsnag/react-native-performance": "^3.1.0",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@ptomasroos/react-native-multi-slider": "^2.2.2",
     "@react-native-async-storage/async-storage": "^1.24.0",

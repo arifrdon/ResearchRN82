@@ -17,7 +17,8 @@ import Lottie from 'lottie-react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
-// import Bugsnag from '@bugsnag/react-native'
+import Bugsnag from '@bugsnag/react-native'
+import BugsnagPerformance from '@bugsnag/react-native-performance'
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
@@ -140,6 +141,7 @@ const AppPackageContent = () => {
     }
 
     const checkBugsnag = () => {
+        //note: enabling this must config bugsnag start on android & ios, also provide it with correct key
         // console.log("start bugsnag")
         // Bugsnag.start({
         //     apiKey: '00000000000000000000000000000000',
@@ -149,6 +151,16 @@ const AppPackageContent = () => {
             
         // })
         // console.log('✅ Bugsnag initialized')
+    }
+
+    const checkBugsnagPerformance = () => {
+        //note: enabling this must config bugsnag start on android & ios, also provide it with correct key
+        // console.log("start bugsnag performance")
+        // BugsnagPerformance.start({ 
+        //     apiKey: '00000000000000000000000000000000', 
+        //     onError: (error) => console.log(error),
+        // })
+        //  console.log("end bugsnag performance")
     }
 
     // Listeners
@@ -172,15 +184,22 @@ const AppPackageContent = () => {
         <SafeAreaView style={{ flex: 1, paddingHorizontal: 12 }}>
             <ScrollView>
 
+
                 {/* <View style={styles.columnDiv}>
-                    <Text style={styles.textPackageName}>@gorhom/bottom-sheet</Text>
-                    <Button title={'open bottomsheet'} onPress={handlerOpenBs} />
-                </View> */}
+                    <Text style={styles.textPackageName}>@bugsnag/react-native-performance</Text>
+                    <Button title={'Test log bugsnag'} onPress={checkBugsnagPerformance} />
+                </View>
+
 
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>@bugsnag/react-native</Text>
                     <Button title={'Test log bugsnag'} onPress={checkBugsnag} />
-                </View>
+                </View> */}
+
+                {/* <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@gorhom/bottom-sheet</Text>
+                    <Button title={'open bottomsheet'} onPress={handlerOpenBs} />
+                </View> */}
 
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>@ptomasroos/react-native-multi-slider</Text>
