@@ -16,6 +16,8 @@ import axios from 'axios';
 import Lottie from 'lottie-react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import MultiSlider from "@ptomasroos/react-native-multi-slider";
+// import Bugsnag from '@bugsnag/react-native'
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
@@ -30,7 +32,7 @@ const AppPackageContent = () => {
     const [resultDebounce, setResultDebounce] = useState('');
     const [dataAxios, setDataAxios] = useState(null);
     const netInfo = useNetInfo();
-    const bsRef = useRef<BottomSheet>(null);
+    const bsRef = useRef < BottomSheet > (null);
     const today = new Date();
     const nextWeek = addDays(today, 7);
     const myPropTypes = {
@@ -137,6 +139,18 @@ const AppPackageContent = () => {
         bsRef.current?.snapToIndex(0);
     }
 
+    const checkBugsnag = () => {
+        // console.log("start bugsnag")
+        // Bugsnag.start({
+        //     apiKey: '00000000000000000000000000000000',
+        //     endpoints: { notify: 'http://localhost', sessions: 'http://localhost' },
+        //     autoTrackSessions: false,
+        //     onError: (error) => console.log(error),
+            
+        // })
+        // console.log('✅ Bugsnag initialized')
+    }
+
     // Listeners
 
     // Effects
@@ -164,7 +178,18 @@ const AppPackageContent = () => {
                 </View> */}
 
                 <View style={styles.columnDiv}>
-                    
+                    <Text style={styles.textPackageName}>@bugsnag/react-native</Text>
+                    <Button title={'Test log bugsnag'} onPress={checkBugsnag} />
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@ptomasroos/react-native-multi-slider</Text>
+                    <MultiSlider
+                        values={[100]}
+                        sliderLength={100}
+                        min={1}
+                        max={100}
+                    />
                 </View>
 
                 <View style={styles.columnDiv}>
@@ -173,7 +198,7 @@ const AppPackageContent = () => {
                         source={LOTTIE_TYPING_INDICATOR}
                         autoPlay
                         loop
-                        style={{ height: 24, width: 64, alignSelf:'center' }}
+                        style={{ height: 24, width: 64, alignSelf: 'center' }}
                     />
                 </View>
 
@@ -331,7 +356,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     textPackageName: {
-        fontWeight:'bold', marginBottom: 6, textAlign:'center'
+        fontWeight: 'bold', marginBottom: 6, textAlign: 'center'
     }
 })
 
