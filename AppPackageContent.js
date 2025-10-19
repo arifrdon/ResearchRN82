@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput } from 'react-native'
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput, Platform } from 'react-native'
 
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -25,14 +25,14 @@ import { Picker } from '@react-native-picker/picker';
 import messaging from '@react-native-firebase/messaging'
 import { firebase } from '@react-native-firebase/app'
 import Geolocation from '@react-native-community/geolocation';
-
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
 
 
-const AppPackageContent = ({navigation}) => {
+const AppPackageContent = ({ navigation }) => {
 
     // States & variables
     const [copiedText, setCopiedText] = useState('');
@@ -226,20 +226,48 @@ const AppPackageContent = ({navigation}) => {
 
     const checkGeoLocation = () => {
         Geolocation.getCurrentPosition(
-        position => {
-            console.log('✅ Position:', position);
-            setLocation(position.coords);
-        },
-        error => {
-            console.log('❌ Error:', error);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+            position => {
+                console.log('✅ Position:', position);
+                setLocation(position.coords);
+            },
+            error => {
+                console.log('❌ Error:', error);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
         );
     };
 
     // Listeners
 
     // Effects
+
+    useEffect(() => {
+        if (Platform.OS == 'ios'){
+            // Ask for permission on startup
+            PushNotificationIOS.requestPermissions().then((permissions) => {
+                console.log('Permissions:', permissions);
+            });
+
+            // Listen for registration token
+            const onRegister = (deviceToken) => {
+                console.log('Device Token:', deviceToken);
+            };
+            PushNotificationIOS.addEventListener('register', onRegister);
+
+            // Listen for incoming notification (foreground)
+            const onNotification = (notification) => {
+                console.log('Notification:', notification);
+                notification.finish(PushNotificationIOS.FetchResult.NoData);
+            };
+            PushNotificationIOS.addEventListener('notification', onNotification);
+
+            return () => {
+                PushNotificationIOS.removeEventListener('register', onRegister);
+                PushNotificationIOS.removeEventListener('notification', onNotification);
+            };
+        }
+        
+    }, []);
 
     // Renders
 
@@ -257,14 +285,30 @@ const AppPackageContent = ({navigation}) => {
     return (
         <View style={{ flex: 1, paddingHorizontal: 12, paddingBottom: insets.bottom + 12 }}>
             <ScrollView>
-
+                {
+                    Platform.OS == 'ios' && (
+                        <View style={styles.columnDiv}>
+                            <Text style={styles.textPackageName}>@react-native-community/push-notification-ios</Text>
+                            <Button
+                                title="Trigger Local Notification"
+                                onPress={() => {
+                                PushNotificationIOS.addNotificationRequest({
+                                    id: 'test',
+                                    title: 'Hello from RN!',
+                                    body: 'This is a test local notification 🚀',
+                                });
+                                }}
+                            />
+                        </View>
+                    )
+                }
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>@react-native-community/geolocation</Text>
                     <Button title={'Test geolocation'} onPress={checkGeoLocation} />
                     {location && (
                         <Text selectable={true}>
-                        Latitude: {location.latitude}{'\n'}
-                        Longitude: {location.longitude}
+                            Latitude: {location.latitude}{'\n'}
+                            Longitude: {location.longitude}
                         </Text>
                     )}
                 </View>
