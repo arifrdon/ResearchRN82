@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput } from 'react-native'
-import { ContainerStyles } from '../../assets'
 
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -13,6 +12,10 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { hierarchy, tree } from 'd3-hierarchy';
 import axios from 'axios';
+import Lottie from 'lottie-react-native';
+
+import { ContainerStyles } from '../../assets'
+import { LOTTIE_TYPING_INDICATOR } from './assets';
 
 
 
@@ -133,6 +136,16 @@ const AppPackageContent = () => {
     return (
         <SafeAreaView style={{ flex: 1, paddingHorizontal: 12 }}>
             <ScrollView>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>lottie-react-native</Text>
+                    <Lottie
+                        source={LOTTIE_TYPING_INDICATOR}
+                        autoPlay
+                        loop
+                        style={{ height: 24, width: 64, alignSelf:'center' }}
+                    />
+                </View>
 
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>axios</Text>
