@@ -6,6 +6,7 @@
  */
 
 import { NewAppScreen } from '@react-native/new-app-screen';
+import React, { useEffect, useState } from "react";
 import { StatusBar, StyleSheet, useColorScheme, View, Text, Button, Platform } from 'react-native';
 import {
   SafeAreaProvider,
