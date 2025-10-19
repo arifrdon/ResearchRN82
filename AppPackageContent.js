@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Button, TextInput } from 'react-native'
 
 
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Clipboard from '@react-native-clipboard/clipboard';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { useNetInfo } from "@react-native-community/netinfo";
@@ -22,13 +22,17 @@ import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import { Mixpanel } from "mixpanel-react-native";
 import { configureStore } from '@reduxjs/toolkit'
 import { Picker } from '@react-native-picker/picker';
+import messaging from '@react-native-firebase/messaging'
+import { firebase } from '@react-native-firebase/app'
+import Geolocation from '@react-native-community/geolocation';
+
 
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
 
 
-const AppPackageContent = () => {
+const AppPackageContent = ({navigation}) => {
 
     // States & variables
     const [copiedText, setCopiedText] = useState('');
@@ -37,10 +41,12 @@ const AppPackageContent = () => {
     const [resultDebounce, setResultDebounce] = useState('');
     const [dataAxios, setDataAxios] = useState(null);
     const [selectedLanguage, setSelectedLanguage] = useState();
+    const [location, setLocation] = useState(null);
     const netInfo = useNetInfo();
     const bsRef = useRef < BottomSheet > (null);
     const today = new Date();
     const nextWeek = addDays(today, 7);
+    const insets = useSafeAreaInsets();
     const myPropTypes = {
         name: PropTypes.string,
         age: PropTypes.number,
@@ -186,6 +192,51 @@ const AppPackageContent = () => {
         const store = configureStore({ reducer: (s = {}) => s })
         console.log('✅ Redux store:', !!store.dispatch)
     }
+
+    const checkFirebaseMessaging = async () => {
+        try {
+            // console.log('✅ Firebase version:', firebase.SDK_VERSION)
+
+            // // Check if the messaging module is available
+            // console.log('✅ messaging module:', !!messaging)
+
+            // Ask permission (no-op on Android, will show dialog on iOS)
+            const authStatus = await messaging().requestPermission()
+            console.log('✅ Permission status:', authStatus)
+
+            // // Get token (will return null or fake token if no real Firebase setup)
+            // const token = await messaging().getToken()
+            // console.log('✅ FCM token:', token || '(none — expected if not configured)')
+
+            // // Subscribe to a test topic (works even if token not registered)
+            // await messaging().subscribeToTopic('test_topic')
+            // console.log('✅ Subscribed to topic test_topic')
+
+            // Add a test listener (for runtime confirmation)
+            const unsubscribe = messaging().onMessage(async remoteMessage => {
+                console.log('📩 Foreground message received:', remoteMessage)
+            })
+
+            console.log('✅ Messaging initialized and listening')
+            return () => unsubscribe()
+        } catch (err) {
+            console.error('❌ Firebase messaging test error:', err)
+        }
+    }
+
+    const checkGeoLocation = () => {
+        Geolocation.getCurrentPosition(
+        position => {
+            console.log('✅ Position:', position);
+            setLocation(position.coords);
+        },
+        error => {
+            console.log('❌ Error:', error);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+        );
+    };
+
     // Listeners
 
     // Effects
@@ -204,8 +255,31 @@ const AppPackageContent = () => {
     );
 
     return (
-        <SafeAreaView style={{ flex: 1, paddingHorizontal: 12 }}>
+        <View style={{ flex: 1, paddingHorizontal: 12, paddingBottom: insets.bottom + 12 }}>
             <ScrollView>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-community/geolocation</Text>
+                    <Button title={'Test geolocation'} onPress={checkGeoLocation} />
+                    {location && (
+                        <Text selectable={true}>
+                        Latitude: {location.latitude}{'\n'}
+                        Longitude: {location.longitude}
+                        </Text>
+                    )}
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-navigation</Text>
+                    <Text>🏠 Home Screen</Text>
+                    <Button title="Go to Details" onPress={() => navigation.navigate('Details')} />
+                    <Button title="Open Drawer" onPress={() => navigation.openDrawer()} />
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-firebase/app & @react-native-firebase/messaging</Text>
+                    <Button title={'Test console log firebase'} onPress={checkFirebaseMessaging} />
+                </View>
 
                 <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>@react-native-picker/picker</Text>
@@ -397,7 +471,7 @@ const AppPackageContent = () => {
                     </BottomSheetView>
                 </BottomSheet>
             </GestureHandlerRootView> */}
-        </SafeAreaView>
+        </View>
     )
 }
 
