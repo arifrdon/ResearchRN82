@@ -18,6 +18,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import Bugsnag from '@bugsnag/react-native'
 import BugsnagPerformance from '@bugsnag/react-native-performance'
+import { Mixpanel } from "mixpanel-react-native";
+import { configureStore } from '@reduxjs/toolkit'
+import { Picker } from '@react-native-picker/picker';
 
 import { ContainerStyles } from '../../assets'
 import { LOTTIE_TYPING_INDICATOR } from './assets';
@@ -32,6 +35,7 @@ const AppPackageContent = () => {
     const [text, setText] = useState('');
     const [resultDebounce, setResultDebounce] = useState('');
     const [dataAxios, setDataAxios] = useState(null);
+    const [selectedLanguage, setSelectedLanguage] = useState();
     const netInfo = useNetInfo();
     const bsRef = useRef < BottomSheet > (null);
     const today = new Date();
@@ -46,6 +50,10 @@ const AppPackageContent = () => {
         age: 'world', // not valid
     };
 
+    const trackAutomaticEvents = false
+    const mixpanel = new Mixpanel('Your Api Key', trackAutomaticEvents)
+    mixpanel.init()
+    mixpanel.setLoggingEnabled(true)
 
     // Handlers
 
@@ -163,6 +171,21 @@ const AppPackageContent = () => {
         //  console.log("end bugsnag performance")
     }
 
+    const checkMixPanel = () => {
+        try {
+            mixpanel.track('Sent Message')
+            console.log('✅ Mixpanel track called successfully')
+
+        } catch (err) {
+            console.error('❌ Mixpanel error:', err)
+        }
+    }
+
+    const checkReduxToolkit = () => {
+        const store = configureStore({ reducer: (s = {}) => s })
+        console.log('✅ Redux store:', !!store.dispatch)
+    }
+
     // Listeners
 
     // Effects
@@ -183,6 +206,28 @@ const AppPackageContent = () => {
     return (
         <SafeAreaView style={{ flex: 1, paddingHorizontal: 12 }}>
             <ScrollView>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@react-native-picker/picker</Text>
+                    <Picker
+                        selectedValue={selectedLanguage}
+                        onValueChange={(itemValue, itemIndex) =>
+                            setSelectedLanguage(itemValue)
+                        }>
+                        <Picker.Item label="Java" value="java" />
+                        <Picker.Item label="JavaScript" value="js" />
+                    </Picker>
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>@reduxjs/toolkit</Text>
+                    <Button title={'Test console log @reduxjs/toolkit'} onPress={checkReduxToolkit} />
+                </View>
+
+                <View style={styles.columnDiv}>
+                    <Text style={styles.textPackageName}>mixpanel-react-native</Text>
+                    <Button title={'Test console log mixpanel'} onPress={checkMixPanel} />
+                </View>
 
                 {/* <View style={styles.columnDiv}>
                     <Text style={styles.textPackageName}>@bugsnag/react-native-performance</Text>
